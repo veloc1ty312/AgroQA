@@ -28,6 +28,13 @@ def build_prompt(question: str, docs: List[Dict], mode: str = "short") -> list:
         f"REQUIRED: Cite sources using [#] that match the CONTEXT blocks."
     )
 
+    '''
+    NEXT STEPS: 
+    - add actual quotes to output when possible along with the citations
+    - stream output
+    - create second prompt to give code for graphs only if applicable
+    '''
+
     return [
         {"role": "system", "content": SYSTEM},
         {"role": "user", "content": user_content},
