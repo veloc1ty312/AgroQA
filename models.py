@@ -40,7 +40,7 @@ def build_answer_prompt(question: str, docs: List[Dict], mode: str = "short") ->
         {"role": "user", "content": user_content},
     ]
 
-def build_graph_prompt(question: str, docs: List[Dict]) -> list:
+def build_graph_prompt(question: str, docs: List[Dict], answer: str) -> list:
     context_blocks = []
     for i, d in enumerate(docs):
         src = d["meta"].get("source", "unknown")
@@ -50,7 +50,9 @@ def build_graph_prompt(question: str, docs: List[Dict]) -> list:
 
     user_content = (
         f"CONTEXT (authoritative excerpts):\n{context}\n\n"
-        f"QUESTION: Only if applicable, create python code for graphs using real data (ONLY output code). If not applicable, output 'N/A'\n"
+        f"ORIGINAL QUESTION: {question}\n",
+        f"ORIGINAL ANSWER: {answer}\n",
+        f"INSTRUCTIONS: Only if applicable, create python code for graphs using real data (ONLY output code - no explanations). If not applicable, output 'N/A'\n"
     )
 
     return [
@@ -61,16 +63,20 @@ def build_graph_prompt(question: str, docs: List[Dict]) -> list:
 def answer(question: str, docs: List[Dict], mode: str = "short") -> str:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     model = os.getenv("MODEL_NAME", "gpt-4o-mini")
+    
     messages = build_answer_prompt(question, docs, mode)
     resp = client.chat.completions.create(
         model=model,
         messages=messages,
         temperature=0.2,
     )
-    graph = build_graph_prompt(question, docs)
+    answer = resp.choices[0].message.content
+    
+    graph = build_graph_prompt(question, docs, answer)
     resp_graph = client.chat.completions.create(
         model=model,
         messages=graph,
         temperature=0.2,
     )
-    return resp.choices[0].message.content, resp_graph.choices[0].message.content
+    
+    return answer, resp_graph.choices[0].message.content
