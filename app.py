@@ -36,7 +36,7 @@ def chat():
         {"idx": i + 1, "source": d["meta"].get("source"), "page": d["meta"].get("page"), "score": d.get("score")}
         for i, d in enumerate(docs)
     ]
-    return jsonify({"answer": out, "citations": citations})
+    return jsonify({"answer": out, "graph": graph, "citations": citations})
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "8000"))
