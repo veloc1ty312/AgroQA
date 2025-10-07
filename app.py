@@ -31,7 +31,7 @@ def chat():
     k = data.get("k", 5)
 
     docs = retr.search(q, k=k, filters=filters)
-    out = answer(q, docs, mode=mode)
+    out, graph = answer(q, docs, mode=mode)
     citations = [
         {"idx": i + 1, "source": d["meta"].get("source"), "page": d["meta"].get("page"), "score": d.get("score")}
         for i, d in enumerate(docs)
