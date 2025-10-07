@@ -1,0 +1,8 @@
+flask
+pydantic
+python-dotenv
+pymupdf
+chromadb
+sentence-transformers
+tiktoken
+openai
