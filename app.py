@@ -6,8 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="ui", static_url_path="/ui")
 retr = Retriever()
+
+@app.get("/")
+def root():
+    return app.send_static_file("index.html")
 
 @app.get("/health")
 def health():
@@ -21,12 +25,13 @@ def chat():
         return jsonify({"error": "Missing 'q'"}), 400
 
     mode = data.get("mode", "short")
-    filters = data.get("filters")  # e.g., {"source": "sprayer_manual.pdf"}
+    filters = data.get("filters") or None
+    if isinstance(filters, dict) and len(filters) == 0:
+        filters = None
     k = data.get("k", 5)
 
     docs = retr.search(q, k=k, filters=filters)
     out = answer(q, docs, mode=mode)
-    # return source mapping for UI to show clickable citations
     citations = [
         {"idx": i + 1, "source": d["meta"].get("source"), "page": d["meta"].get("page"), "score": d.get("score")}
         for i, d in enumerate(docs)

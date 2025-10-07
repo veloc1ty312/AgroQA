@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AgroQA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0c0; --text:#e8eef9; --accent:#6aa1ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji"; }
+    .wrap { max-width:900px; margin:0 auto; padding:24px; }
+    h1 { margin:0 0 16px; font-size:24px; }
+    .card { background:var(--card); border:1px solid #1f2633; border-radius:14px; padding:16px; }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    textarea, input[type="text"], input[type="number"] {
+      width:100%; padding:12px; background:#0f131a; color:var(--text); border:1px solid #243044; border-radius:10px; outline:none;
+    }
+    textarea:focus, input:focus { border-color: var(--accent); }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .col { flex:1 1 260px; }
+    .btn {
+      display:inline-flex; align-items:center; gap:10px;
+      background:var(--accent); color:#06122b; font-weight:700; border:none; padding:12px 16px; border-radius:10px; cursor:pointer;
+    }
+    .btn[disabled] { opacity:0.6; cursor:not-allowed; }
+    .muted { color:var(--muted); font-size:13px; }
+    .answer { white-space:pre-wrap; background:#0f131a; border:1px solid #243044; border-radius:10px; padding:14px; }
+    .kvs { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .chip { display:inline-block; padding:4px 8px; border-radius:999px; background:#0f131a; border:1px solid #243044; font-size:12px; color:var(--muted); }
+    .citations { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+    .health { margin-bottom:12px; font-size:13px; }
+    .ok { color:#76e0a2; } .bad { color:#ff8a8a; }
+    .footer { margin-top:18px; font-size:12px; color:var(--muted); }
+    .small { font-size:12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>AgroQA — Local RAG</h1>
+
+    <div id="health" class="health muted">Checking server…</div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <label for="q">Question</label>
+      <textarea id="q" rows="5" placeholder="e.g., How do I calibrate my boom sprayer nozzles?"></textarea>
+
+      <div class="row" style="margin-top:12px;">
+        <div class="col">
+          <label>Answer length</label>
+          <div class="kvs">
+            <label class="chip"><input type="radio" name="mode" value="short" checked />&nbsp;Short</label>
+            <label class="chip"><input type="radio" name="mode" value="long" />&nbsp;Long</label>
+          </div>
+        </div>
+        <div class="col">
+          <label for="source">Filter by source filename (optional)</label>
+          <input id="source" type="text" placeholder="e.g., raven_scs440_manual.pdf" />
+        </div>
+        <div class="col" style="max-width:160px;">
+          <label for="k">Top-k docs</label>
+          <input id="k" type="number" min="1" max="10" value="5" />
+        </div>
+      </div>
+
+      <div style="margin-top:14px; display:flex; gap:10px; align-items:center;">
+        <button id="ask" class="btn">
+          <span id="spinner" style="display:none;">⏳</span>
+          Ask
+        </button>
+        <span class="muted small">Ctrl+Enter submits</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="col" style="flex:2 1 520px;">
+          <label>Answer</label>
+          <div id="answer" class="answer" style="min-height:120px;">—</div>
+        </div>
+        <div class="col" style="flex:1 1 260px;">
+          <label>Citations</label>
+          <div id="cites" class="citations">
+            <div class="muted">No citations yet.</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer">The numbers like [1], [2] in the answer correspond to the items listed under “Citations.”</div>
+    </div>
+  </div>
+
+  <script>
+    const askBtn = document.getElementById('ask');
+    const qEl = document.getElementById('q');
+    const srcEl = document.getElementById('source');
+    const kEl = document.getElementById('k');
+    const ansEl = document.getElementById('answer');
+    const citesEl = document.getElementById('cites');
+    const healthEl = document.getElementById('health');
+    const spinner = document.getElementById('spinner');
+
+    async function checkHealth() {
+      try {
+        const r = await fetch('/health');
+        if (!r.ok) throw new Error(String(r.status));
+        const j = await r.json();
+        healthEl.innerHTML = `<span class="ok">✓ Server OK</span> <span class="muted">(${new Date().toLocaleTimeString()})</span>`;
+      } catch (e) {
+        healthEl.innerHTML = `<span class="bad">× Server not reachable</span> <span class="muted">Is app.py running on port 8000?</span>`;
+      }
+    }
+    checkHealth();
+
+    function currentMode() {
+      const el = document.querySelector('input[name="mode"]:checked');
+      return el ? el.value : 'short';
+    }
+
+    function setLoading(v) {
+      askBtn.disabled = v;
+      spinner.style.display = v ? 'inline-block' : 'none';
+    }
+
+    function renderCitations(arr) {
+      citesEl.innerHTML = '';
+      if (!arr || arr.length === 0) {
+        citesEl.innerHTML = '<div class="muted">No citations.</div>';
+        return;
+      }
+      for (const c of arr) {
+        const div = document.createElement('div');
+        div.className = 'chip';
+        const score = (c.score != null) ? ` — score ${c.score.toFixed(2)}` : '';
+        div.textContent = `[${c.idx}] ${c.source || 'unknown'} (p.${c.page ?? '?'})${score}`;
+        citesEl.appendChild(div);
+      }
+    }
+
+    async function ask() {
+      const q = qEl.value.trim();
+      if (!q) {
+        alert('Please enter a question.');
+        qEl.focus();
+        return;
+      }
+      const filters = srcEl.value.trim() ? { source: srcEl.value.trim() } : undefined;
+      const k = Math.max(1, Math.min(10, parseInt(kEl.value || '5', 10)));
+
+      setLoading(true);
+      ansEl.textContent = 'Thinking…';
+      renderCitations([]);
+
+      try {
+        const r = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ q, mode: currentMode(), filters, k })
+        });
+        if (!r.ok) {
+          const text = await r.text();
+          throw new Error(`HTTP ${r.status}: ${text}`);
+        }
+        const j = await r.json();
+        ansEl.textContent = j.answer || '(no answer returned)';
+        renderCitations(j.citations || []);
+      } catch (err) {
+        ansEl.textContent = `Error: ${err.message}`;
+        renderCitations([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    askBtn.addEventListener('click', ask);
+    qEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) ask();
+    });
+  </script>
+</body>
+</html>
