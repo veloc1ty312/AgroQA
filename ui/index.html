@@ -32,6 +32,7 @@
     .ok { color:#76e0a2; } .bad { color:#ff8a8a; }
     .footer { margin-top:18px; font-size:12px; color:var(--muted); }
     .small { font-size:12px; }
+    .graph-img { max-width:100%; border-radius:10px; display:block; }
   </style>
 </head>
 <body>
@@ -71,7 +72,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="margin-bottom:14px;">
       <div class="row">
         <div class="col" style="flex:2 1 520px;">
           <label>Answer</label>
@@ -86,6 +87,13 @@
       </div>
       <div class="footer">The numbers like [1], [2] in the answer correspond to the items listed under “Citations.”</div>
     </div>
+
+    <!-- Graph card (auto-shown if backend returns graph_image) -->
+    <div class="card" id="graph-card" hidden>
+      <label>Graph</label>
+      <img id="graph-img" class="graph-img" alt="Auto-generated graph" />
+      <div class="muted small" style="margin-top:6px;">Auto-generated from the retrieved context.</div>
+    </div>
   </div>
 
   <script>
@@ -97,12 +105,14 @@
     const citesEl = document.getElementById('cites');
     const healthEl = document.getElementById('health');
     const spinner = document.getElementById('spinner');
+    const graphCard = document.getElementById('graph-card');
+    const graphImg  = document.getElementById('graph-img');
 
     async function checkHealth() {
       try {
         const r = await fetch('/health');
         if (!r.ok) throw new Error(String(r.status));
-        const j = await r.json();
+        await r.json();
         healthEl.innerHTML = `<span class="ok">✓ Server OK</span> <span class="muted">(${new Date().toLocaleTimeString()})</span>`;
       } catch (e) {
         healthEl.innerHTML = `<span class="bad">× Server not reachable</span> <span class="muted">Is app.py running on port 8000?</span>`;
@@ -135,6 +145,16 @@
       }
     }
 
+    function hideGraph() {
+      graphCard.hidden = true;
+      graphImg.removeAttribute('src');
+    }
+
+    function showGraph(dataUrl) {
+      graphImg.src = dataUrl;
+      graphCard.hidden = false;
+    }
+
     async function ask() {
       const q = qEl.value.trim();
       if (!q) {
@@ -148,6 +168,7 @@
       setLoading(true);
       ansEl.textContent = 'Thinking…';
       renderCitations([]);
+      hideGraph();
 
       try {
         const r = await fetch('/chat', {
@@ -160,11 +181,19 @@
           throw new Error(`HTTP ${r.status}: ${text}`);
         }
         const j = await r.json();
+
         ansEl.textContent = j.answer || '(no answer returned)';
         renderCitations(j.citations || []);
+
+        if (j.graph_image) {
+          showGraph(j.graph_image);
+        } else {
+          hideGraph();
+        }
       } catch (err) {
         ansEl.textContent = `Error: ${err.message}`;
         renderCitations([]);
+        hideGraph();
       } finally {
         setLoading(false);
       }
