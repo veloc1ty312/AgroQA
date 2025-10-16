@@ -1,0 +1,13 @@
+Retrieval Evaluation
+API: http://localhost:8000/chat
+K: 5
+
+== Unfiltered ==
+Questions: 20
+Recall@5: 0.800
+MRR@5: 0.564
+
+== With Filters ==
+Questions: 20
+Recall@5: 0.900
+MRR@5: 0.689

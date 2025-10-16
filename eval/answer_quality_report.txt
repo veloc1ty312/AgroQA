@@ -1,0 +1,21 @@
+Answer Quality (automatic checks)
+Run: 2025-10-15T20:20:19
+Source: eval\answers.jsonl
+
+Mode: short
+  N: 20
+  Avg sentences: 4.10
+  Median sentences: 4
+  Answers with any [#]: 20/20
+  Answers with unmatched [#]: 0/20
+  Avg grounded sentence fraction: 0.57
+  Short length in 3–5 sentences: 18/20
+
+Mode: long
+  N: 20
+  Avg sentences: 23.15
+  Median sentences: 23
+  Answers with any [#]: 20/20
+  Answers with unmatched [#]: 0/20
+  Avg grounded sentence fraction: 0.24
+

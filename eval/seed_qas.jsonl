@@ -1,0 +1,28 @@
+{"q":"When should I start irrigating V6 corn in hot, dry weather?","mode":"short","k":5,"filters":null}
+{"q":"Give a concise checklist for monitoring water stress signs in V6–V10 corn during a heat wave.","mode":"short","k":5,"filters":null}
+{"q":"Using ET-based methods, outline a simple 10-day irrigation schedule for corn in hot, dry weather (include a matplotlib chart).","mode":"long","k":5,"filters":null}
+{"q":"Summarize key irrigation scheduling recommendations specifically from the Kansas State Corn Production Handbook.","mode":"long","k":5,"filters":{"$and":[{"source":{"$contains":"C560.pdf"}}]}}
+{"q":"What yield response to irrigation (bushels per inch of water) does the Kansas State Corn Production Handbook report?","mode":"short","k":5,"filters":{"$and":[{"source":{"$contains":"C560.pdf"}}]}}
+{"q":"When should irrigation be reduced or terminated near maturity according to the Kansas State Corn Production Handbook?","mode":"short","k":5,"filters":{"$and":[{"source":{"$contains":"C560.pdf"}}]}}
+{"q":"How do I use the KANSCHED2 ET-based irrigation scheduling tool—what inputs are required and how often should I update them?","mode":"long","k":5,"filters":{"$and":[{"source":{"$contains":"EP129.pdf"}}]}}
+{"q":"Explain the checkbook method workflow as implemented by KANSCHED2 for scheduling irrigation.","mode":"short","k":5,"filters":{"$and":[{"source":{"$contains":"EP129.pdf"}}]}}
+{"q":"From UNL guidance, what’s the recommended approach to begin irrigation for corn on silt loam under hot, dry conditions?","mode":"short","k":5,"filters":{"$and":[{"source":{"$contains":"g1850-2008.pdf"}}]}}
+{"q":"Using UNL guidance (EC2008-2023), list steps to estimate daily crop water use (ETc) and convert to inches for scheduling.","mode":"long","k":5,"filters":{"$and":[{"source":{"$contains":"ec2008-2023.pdf"}}]}}
+{"q":"From UNL guidance (G2245-2014), how should I adjust irrigation when forecast rainfall is 0.5 in over the next 48 hours?","mode":"short","k":5,"filters":{"$and":[{"source":{"$contains":"g2245-2014.pdf"}}]}}
+{"q":"From UNL guidance (EC2007-2014), provide typical soil water holding capacity values I can use for a quick field calculation.","mode":"short","k":5,"filters":{"$and":[{"source":{"$contains":"ec2007-2014.pdf"}}]}}
+{"q":"Give fertigation do’s and don’ts for nitrogen through a center pivot on corn.","mode":"long","k":5,"filters":null}
+{"q":"Provide guidelines for irrigation system capacity (in/day) needed to meet peak corn ET under hot, dry conditions.","mode":"short","k":5,"filters":null}
+{"q":"What are typical application efficiencies for center pivot, sprinkler, and drip systems and how do they affect net irrigation depth?","mode":"short","k":5,"filters":null}
+{"q":"Summarize FAO irrigation scheduling principles relevant to maize (Kc, stages, and soil water balance).","mode":"long","k":5,"filters":{"$and":[{"source":{"$contains":"ai596e.pdf"}}]}}
+{"q":"From FAO materials, list maize crop coefficients (Kc) by growth stage and explain how to compute ETc from ETo.","mode":"short","k":5,"filters":{"$and":[{"source":{"$contains":"a1336e06.pdf"}}]}}
+{"q":"Using FAO guidance, outline a simple water balance worksheet for daily irrigation scheduling for maize.","mode":"long","k":5,"filters":{"$and":[{"source":{"$contains":"f2430e.pdf"}}]}}
+{"q":"Provide steps to calibrate a boom sprayer’s nozzle flow rate and verify uniformity using catch cans.","mode":"long","k":5,"filters":null}
+{"q":"How does nozzle pressure affect flow rate and droplet size for field sprayers? Provide equations or rules of thumb.","mode":"short","k":5,"filters":null}
+{"q":"Using the ‘On-farm Scheduling’ paper from K-State, explain a practical workflow to update irrigation decisions during a heat wave.","mode":"long","k":5,"filters":{"$and":[{"source":{"$contains":"On-farm_20Scheduling"}}]}}
+{"q":"From the K-State on-farm scheduling paper, what data streams (ET, rainfall, soil moisture) are most impactful for daily decisions?","mode":"short","k":5,"filters":{"$and":[{"source":{"$contains":"On-farm_20Scheduling"}}]}}
+{"q":"Give a concise plan for deficit irrigation at late vegetative stages that minimizes yield risk.","mode":"short","k":5,"filters":null}
+{"q":"How can I use visible plant stress in corn as an indicator for irrigation timing, and what cautions apply?","mode":"short","k":5,"filters":null}
+{"q":"Create a 7-day irrigation plan for corn facing a forecast heat wave; assume daily ET ~0.30–0.40 in and no rainfall (include a matplotlib chart).","mode":"long","k":5,"filters":null}
+{"q":"What are typical peak daily ET rates for irrigated corn in the U.S. Plains and how should I plan starting capacity?","mode":"short","k":5,"filters":null}
+{"q":"Explain how to compute net vs. gross irrigation given soil depletions and system efficiency; include a numeric example.","mode":"long","k":5,"filters":null}
+{"q":"If rainfall of 0.25 in is forecast tomorrow, how should I adjust today’s planned irrigation under an ET-based schedule?","mode":"short","k":5,"filters":null}
